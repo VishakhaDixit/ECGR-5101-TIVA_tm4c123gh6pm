@@ -46,6 +46,8 @@ int main(void)
     adcConfigParam.port = PORT_E;
     adcConfigParam.seqNum = 3;
 
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+
     // Initialize ADC
     ADC_Init(&adcConfigParam);
 

@@ -24,28 +24,6 @@ void ADC_Init(adc_config_args_t *adc_config_params)
 {
     uint32_t adcBaseAdd;
 
-    switch(adc_config_params->port)
-    {
-        case PORT_A:
-            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-            break;
-        case PORT_B:
-            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-            break;
-        case PORT_C:
-            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
-            break;
-        case PORT_D:
-            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
-            break;
-        case PORT_E:
-            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-            break;
-        case PORT_F:
-            SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-            break;
-    }
-
     if(adc_config_params->adcModule == ADC_0)
     {
         adcBaseAdd = ADC0_BASE;
