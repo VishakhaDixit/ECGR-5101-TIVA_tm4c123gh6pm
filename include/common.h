@@ -16,6 +16,7 @@
 #include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/adc.h"
+#include "driverlib/uart.h"
 #include "inc/tm4c123gh6pm.h"
 
 typedef enum port
