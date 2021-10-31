@@ -2,7 +2,7 @@
  *
  * @file    main.c
  *
- * @brief   This program tends to implement 7 segment display values from 0-F for every change of potentiometer voltage.
+ * @brief   This program tends to implement unit test cases to test the functioning of MSP430 and display corresponding results in terminal using UART.
  *
  * @date    Oct 21, 2021
  *
@@ -14,8 +14,6 @@
 
 int main(void)
 {
-    char buffer[256] = "Vishakha";
-
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
                    SYSCTL_XTAL_16MHZ);
 
@@ -30,6 +28,6 @@ int main(void)
 
 	while(1)
 	{
-	    uartTxBytes(UART0_BASE, buffer, sizeof(buffer));
+	    testInitialPowerUpMode();
 	}
 }

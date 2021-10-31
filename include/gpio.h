@@ -24,7 +24,7 @@ typedef enum direction
 
 void gpioInit(uint32_t portBaseAdd, uint8_t pins,  dir_e direction);
 
-int32_t gpioGet(uint32_t portBaseAdd, uint8_t pin);
+uint8_t gpioGet(uint32_t portBaseAdd, uint8_t pin);
 
 void gpioSet(uint32_t portBaseAdd, uint8_t pins, uint8_t val);
 

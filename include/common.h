@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include <math.h>
 #include "driverlib/sysctl.h"
 #include "inc/hw_memmap.h"

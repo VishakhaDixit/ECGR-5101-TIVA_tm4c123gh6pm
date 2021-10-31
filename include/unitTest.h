@@ -15,7 +15,7 @@
 
 #include <include/common.h>
 #include <include/uart.h>
-
+#include <include/gpio.h>
 
 void testInitialPowerUpMode();
 

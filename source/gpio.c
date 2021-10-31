@@ -40,11 +40,11 @@ void gpioInit(uint32_t portBaseAdd, uint8_t pins,  dir_e direction)
  *
  * @return      int32_t  Status of the pin
  **************************/
-int32_t gpioGet(uint32_t portBaseAdd, uint8_t pin)
+uint8_t gpioGet(uint32_t portBaseAdd, uint8_t pin)
 {
-    int32_t val;
+    uint8_t val;
 
-    val = GPIOPinRead(portBaseAdd, pin);
+    val = ( uint8_t )GPIOPinRead(portBaseAdd, pin);
 
     return val;
 }
