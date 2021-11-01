@@ -25,9 +25,9 @@ int main(void)
     uartConfigParam.uartModule = UART_0;
 
     uartInit(&uartConfigParam);
+    testNormalMode();
 
 	while(1)
 	{
-	    testInitialPowerUpMode();
 	}
 }

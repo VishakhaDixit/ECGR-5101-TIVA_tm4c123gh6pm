@@ -16,97 +16,143 @@
 /**************************
  * @brief       This function converts decimal to binary
  *
- * @param [in]  hexVal, *outputStr, strLen
+ * @param [in]  decVal, *outputStr, strLen
  *
  * @return      void
  **************************/
-void decToBin(uint8_t hexVal, char *outputStr, uint8_t strLen)
+static void decToBin(uint8_t decVal, char *outputStr)
 {
+    uint8_t strLen = 9;
     outputStr[strLen-1] = '\0';
     strLen--;
-    while (hexVal > 0)
+    while (strLen > 0)
     {
         // storing remainder in binary array
-        outputStr[strLen-1] = (hexVal & 0x01) + 48;
-        hexVal >>= 1;
-        strLen--;
+        if(decVal > 0)
+        {
+            outputStr[strLen-1] = (decVal & 0x01) + 48;
+            decVal >>= 1;
+            strLen--;
+        }
+        else
+        {
+            outputStr[strLen-1] = 48;
+            strLen--;
+        }
     }
 }
 
 
 /**************************
- * @brief       This function tests output of MSP430 on initial power up
+ * @brief       This function tests output of MSP430 based on the input provided
  *
- * @param [in]  NULL
+ * @param [in]  isExtendedInp, input, expectedOp
  *
  * @return      NULL
  **************************/
-void testInitialPowerUpMode()
+void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp)
 {
+    uint8_t portBSetInp, portESetInp;
     uint8_t outputRecvd = 0;
     char outputData[9];
     char buffer[100];
 
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 
     //Set input direction
     gpioInit(PORT_B, (PIN_5 | PIN_0 | PIN_1), OUTPUT);
-    gpioInit(PORT_B, PIN_4, OUTPUT);
-
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+    gpioInit(PORT_E, PIN_4, OUTPUT);
 
     //Set output direction
     gpioInit(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7), INPUT);
     gpioInit(PORT_B, PIN_2, INPUT);
     gpioInit(PORT_E, PIN_0, INPUT);
 
-    //Provide initial input as 0
-    gpioSet(PORT_B, (PIN_5 | PIN_0 | PIN_1), 0x00);
-    gpioSet(PORT_E, PIN_4, 0x00);
+    //Provide initial input
+    if(testCase == NORMAL_MODE)
+    {
+        portBSetInp = (input & 0x06) >> 1;
+        portBSetInp |= (input & 0x01) <<5;
+
+        portESetInp = (input & 0x08) << 1;
+    }
+    else if(testCase == INP_WRONG_PINS)
+    {
+
+    }
+
+    gpioSet(PORT_B, (PIN_5 | PIN_0 | PIN_1), portBSetInp);
+    gpioSet(PORT_E, PIN_4, portESetInp);
 
     SysCtlDelay((SysCtlClockGet() * 1) / 3);
 
-    outputRecvd |= gpioGet(PORT_A, (PIN_5 | PIN_6 | PIN_7 | PIN_2 | PIN_3 | PIN_4));
-    outputRecvd |= gpioGet(PORT_B, PIN_2) >> 1;
-    outputRecvd |= gpioGet(PORT_E, PIN_0);
+    outputRecvd += gpioGet(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7));
+    outputRecvd = ((outputRecvd & 0xE0) >> 5) | ((outputRecvd & 0x1C) << 1);
+    outputRecvd += (gpioGet(PORT_B, PIN_2) & 0x04) << 4;
+    outputRecvd += (gpioGet(PORT_E, PIN_0) & 0x01) << 7;
 
-     decToBin(outputRecvd, outputData, 9);
+    strcpy(buffer, "\nInput provided: 0b");
+    uartTxBytes(UART0_BASE, buffer, strlen(buffer));
 
-    strcpy(buffer, "Input provided: 0000 \n");
-    uartTxBytes(UART0_BASE, buffer, 22);
-
-    strcpy(buffer,"Output received: ");
-    uartTxBytes(UART0_BASE, buffer, 17);
-
+    decToBin(input, outputData);
     uartTxBytes(UART0_BASE, outputData, 8);
 
-    if( outputRecvd == 255 )
+    strcpy(buffer,", Output received: 0b");
+    uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+    decToBin(outputRecvd, outputData);
+    uartTxBytes(UART0_BASE, outputData, 8);
+
+    if( outputRecvd == expectedOp )
     {
         strcpy(buffer, " => As Expected \n");
-        uartTxBytes(UART0_BASE, outputData, 17);
+        uartTxBytes(UART0_BASE, buffer, strlen(buffer));
     }
     else
     {
         strcpy(buffer, " => ERROR !!! \n");
-        uartTxBytes(UART0_BASE, outputData, 15);
+        uartTxBytes(UART0_BASE, buffer, strlen(buffer));
 
-        strcpy(buffer, "Expected Output: 1111 1111\n");
-        uartTxBytes(UART0_BASE, outputData, 27);
+        strcpy(buffer, "Expected Output: 0b");
+        uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+        decToBin(expectedOp, outputData);
+        uartTxBytes(UART0_BASE, outputData, 8);
     }
 }
 
 
 /**************************
- * @brief       This function writes 1 byte of data to be transmitted via uart.
+ * @brief       This function tests output of MSP430 for all inputs from 0 - F.
  *
- * @param [in]  uartBaseAdd, data
+ * @param [in]  NULL
  *
  * @return      NULL
  **************************/
 void testNormalMode()
 {
+    char buffer[100];
+    uint8_t input = 0;
+    uint8_t expectedOp;
 
+    strcpy(buffer, "1. TEST CASE: NORMAL MODE.\n");
+    uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+    for(input = 0; input < 16; input++)
+    {
+        if(input < 8)
+        {
+            expectedOp = 0xFF;
+        }
+        else
+        {
+            expectedOp = 1 << (input - 8);
+        }
+
+        testMspIoModes(NORMAL_MODE, input, expectedOp);
+    }
 }
 
 
@@ -119,7 +165,29 @@ void testNormalMode()
  **************************/
 void testWrongPins()
 {
+    char buffer[100];
+    uint8_t input = 0;
+    uint8_t expectedOp;
 
+    strcpy(buffer, "1. TEST CASE: INPUT(0-15) SENT ON WRONG PINS OF PORT1 p4-p7.\n");
+    uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+    strcpy(buffer, "EXPECTED RESULT: MUST RETAIN PREVIOUS STATE\n");
+    uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+    for(input = 0; input < 16; input++)
+    {
+        if(input < 8)
+        {
+            expectedOp = 0xFF;
+        }
+        else
+        {
+            expectedOp = 1 << (input - 8);
+        }
+
+        testMspIoModes(INP_WRONG_PINS, input, expectedOp);
+    }
 }
 
 

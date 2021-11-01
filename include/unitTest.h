@@ -17,7 +17,15 @@
 #include <include/uart.h>
 #include <include/gpio.h>
 
-void testInitialPowerUpMode();
+typedef enum testCaseSelect
+{
+    NORMAL_MODE,
+    EXTENDED_INP_MODE,
+    INP_WRONG_PINS,
+    INP_WRONG_PORT
+} testCaseSelect_e;
+
+void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp);
 
 void testNormalMode();
 
