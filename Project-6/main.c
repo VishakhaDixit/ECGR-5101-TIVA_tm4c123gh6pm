@@ -27,7 +27,7 @@ int main(void)
     uartInit(&uartConfigParam);
     testNormalMode();
 
-	while(1)
-	{
-	}
+    while(1)
+    {
+    }
 }
