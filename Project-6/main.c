@@ -29,5 +29,10 @@ int main(void)
 	while(1)
 	{
 	    testInitialPowerUpMode();
+        SysCtlDelay((SysCtlClockGet() * 1) / 3);
+	    testNormalMode();
+        SysCtlDelay((SysCtlClockGet() * 1) / 3);
+	    testWrongPins();
+
 	}
 }
