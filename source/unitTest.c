@@ -52,7 +52,7 @@ static void decToBin(uint8_t decVal, char *outputStr)
  **************************/
 void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp)
 {
-    uint8_t portBSetInp, portESetInp;
+    uint8_t portBSetInp, portESetInp, portASetInp;
     uint8_t outputRecvd = 0;
     char outputData[9];
     char buffer[100];
@@ -61,14 +61,28 @@ void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 
-    //Set input direction
-    gpioInit(PORT_B, (PIN_5 | PIN_0 | PIN_1), OUTPUT);
-    gpioInit(PORT_E, (PIN_4 | PIN_5), OUTPUT);
+    if(testCase == INP_WRONG_PORT)
+    {
+        gpioInit(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7), OUTPUT);
+        gpioInit(PORT_B, PIN_2, OUTPUT);
+        gpioInit(PORT_E, PIN_0, OUTPUT);
+        //reading input from P1.0 to P1.7
+        gpioInit(PORT_B, (PIN_7 | PIN_6 | PIN_4 | PIN_1 | PIN_0 | PIN_5), OUTPUT);
+        gpioInit(PORT_E, (PIN_4 | PIN_5), OUTPUT);
 
+    }
+    else
+    {
     //Set output direction
+    gpioInit(PORT_B, (PIN_5 | PIN_0 | PIN_1), OUTPUT);
+    //gpioInit(PORT_B, (PIN_7 | PIN_6 | PIN_4), OUTPUT);
+    //Because p1.4 -pe5, p1.5 pb4, p1.6 - pb6, p1.7 - pb7
+    gpioInit(PORT_E, (PIN_4 | PIN_5), OUTPUT);
+    //Set input direction
     gpioInit(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7), INPUT);
     gpioInit(PORT_B, PIN_2, INPUT);
     gpioInit(PORT_E, PIN_0, INPUT);
+    }
 
     //Provide initial input
     if(testCase == NORMAL_MODE)
@@ -83,7 +97,7 @@ void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp
     {
         portESetInp = (input & 0x01) << 5;
 
-        portBSetInp = (input & 0x02) << 3;
+        portBSetInp = (input & 0x02) << 3; // pb5 is connected to p1.0 , we need pb4 here, so <<2?
         portBSetInp |= (input & 0x0C) << 4;
     }
 
@@ -96,16 +110,35 @@ void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp
 
         portESetInp = (input & 0x18) << 1;
     }
-
+    else if(testCase == INP_WRONG_PORT)
+       {
+           portASetInp = (input & 0x38) >> 1;
+           portASetInp |= (input & 0x07) << 5;
+           portBSetInp = (input & 0x40)>>6;
+           portESetInp = (input & 0x80) >> 7;
+           gpioSet(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7),portASetInp);
+       }
     gpioSet(PORT_B, (PIN_5 | PIN_0 | PIN_1), portBSetInp);
     gpioSet(PORT_E, PIN_4, portESetInp);
 
-    SysCtlDelay((SysCtlClockGet() * 1) / 3);
 
+    SysCtlDelay((SysCtlClockGet() * 1) / 3);
+    if(testCase == INP_WRONG_PORT)
+    {
+      outputRecvd += gpioGet(PORT_B, (PIN_0 | PIN_1 | PIN_4 | PIN_5 | PIN_6 | PIN_7));
+      //check this part pls
+      outputRecvd = ((outputRecvd & 0xE0) >> 5) | ((outputRecvd & 0x1C) << 1);
+      outputRecvd += (gpioGet(PORT_B, PIN_2) & 0x04) << 4;
+      outputRecvd += (gpioGet(PORT_E, PIN_0) & 0x01) << 7;
+    }
+   else
+   {
     outputRecvd += gpioGet(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7));
     outputRecvd = ((outputRecvd & 0xE0) >> 5) | ((outputRecvd & 0x1C) << 1);
     outputRecvd += (gpioGet(PORT_B, PIN_2) & 0x04) << 4;
     outputRecvd += (gpioGet(PORT_E, PIN_0) & 0x01) << 7;
+   }
+
 
     strcpy(buffer, "\nInput provided: 0b");
     uartTxBytes(UART0_BASE, buffer, strlen(buffer));
@@ -209,6 +242,23 @@ void testWrongPins()
  **************************/
 void testWrongPort()
 {
+    uint8_t i,j = 0;
+    char buffer[100];
+    uint8_t input = 0;
+    uint8_t expectedOp = 0;
+
+        strcpy(buffer, "4. TEST CASE: WRONG PORT INPUT MODE from p1.0-p1.7\n");
+        uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+        for(i = 0; i <= 15; i++)
+        {
+            for(j = 0; j <= 15; j++)
+            {
+                input = j | (i << 4);
+                expectedOp = 0x00;
+                testMspIoModes(INP_WRONG_PORT, input, expectedOp);
+            }
+        }
 
 }
 
