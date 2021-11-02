@@ -63,7 +63,7 @@ void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp
 
     //Set input direction
     gpioInit(PORT_B, (PIN_5 | PIN_0 | PIN_1), OUTPUT);
-    gpioInit(PORT_E, PIN_4, OUTPUT);
+    gpioInit(PORT_E, (PIN_4 | PIN_5), OUTPUT);
 
     //Set output direction
     gpioInit(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7), INPUT);
@@ -74,13 +74,27 @@ void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp
     if(testCase == NORMAL_MODE)
     {
         portBSetInp = (input & 0x06) >> 1;
-        portBSetInp |= (input & 0x01) <<5;
+        portBSetInp |= (input & 0x01) << 5;
 
         portESetInp = (input & 0x08) << 1;
     }
+
     else if(testCase == INP_WRONG_PINS)
     {
+        portESetInp = (input & 0x01) << 5;
 
+        portBSetInp = (input & 0x02) << 3;
+        portBSetInp |= (input & 0x0C) << 4;
+    }
+
+    else if(testCase == EXTENDED_INP_MODE)
+    {
+        portBSetInp = (input & 0x06) >> 1;
+        portBSetInp |= (input & 0x01) << 5;
+        portBSetInp |= (input & 0x20) >> 1;
+        portBSetInp |= (input & 0xC0);
+
+        portESetInp = (input & 0x18) << 1;
     }
 
     gpioSet(PORT_B, (PIN_5 | PIN_0 | PIN_1), portBSetInp);
@@ -107,12 +121,12 @@ void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp
 
     if( outputRecvd == expectedOp )
     {
-        strcpy(buffer, " => As Expected \n");
+        strcpy(buffer, " => PASS !!! \n");
         uartTxBytes(UART0_BASE, buffer, strlen(buffer));
     }
     else
     {
-        strcpy(buffer, " => ERROR !!! \n");
+        strcpy(buffer, " => FAIL !!! ");
         uartTxBytes(UART0_BASE, buffer, strlen(buffer));
 
         strcpy(buffer, "Expected Output: 0b");
@@ -125,7 +139,7 @@ void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp
 
 
 /**************************
- * @brief       This function tests output of MSP430 for all inputs from 0 - F.
+ * @brief       This function tests output of MSP430 for all inputs from 0-F.
  *
  * @param [in]  NULL
  *
@@ -157,9 +171,10 @@ void testNormalMode()
 
 
 /**************************
- * @brief       This function writes 1 byte of data to be transmitted via uart.
+ * @brief       This function tests output of MSP430 for all inputs from 0-F set on
+ *              wrong pins.
  *
- * @param [in]  uartBaseAdd, data
+ * @param [in]  NULL
  *
  * @return      NULL
  **************************/
@@ -167,34 +182,28 @@ void testWrongPins()
 {
     char buffer[100];
     uint8_t input = 0;
-    uint8_t expectedOp;
+    uint8_t expectedOp = 0;
 
-    strcpy(buffer, "1. TEST CASE: INPUT(0-15) SENT ON WRONG PINS OF PORT1 p4-p7.\n");
+    strcpy(buffer, "2. TEST CASE: INPUT(0-15) SENT ON WRONG PINS OF PORT1 p4-p7.\n");
     uartTxBytes(UART0_BASE, buffer, strlen(buffer));
 
-    strcpy(buffer, "EXPECTED RESULT: MUST RETAIN PREVIOUS STATE\n");
+    strcpy(buffer, "EXPECTED RESULT: MUST RETAIN DEFAULT STATE\n");
     uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+    expectedOp = 0xFF;
 
     for(input = 0; input < 16; input++)
     {
-        if(input < 8)
-        {
-            expectedOp = 0xFF;
-        }
-        else
-        {
-            expectedOp = 1 << (input - 8);
-        }
-
         testMspIoModes(INP_WRONG_PINS, input, expectedOp);
     }
 }
 
 
 /**************************
- * @brief       This function writes 1 byte of data to be transmitted via uart.
+ * @brief       This function tests output of MSP430 for all inputs from 0-F set on
+ *              wrong port.
  *
- * @param [in]  uartBaseAdd, data
+ * @param [in]  NULL
  *
  * @return      NULL
  **************************/
@@ -205,13 +214,38 @@ void testWrongPort()
 
 
 /**************************
- * @brief       This function writes 1 byte of data to be transmitted via uart.
+ * @brief       This function tests output of MSP430 for extended 8-bit input
  *
- * @param [in]  uartBaseAdd, data
+ * @param [in]  NULL
  *
  * @return      NULL
  **************************/
 void testExtendedDataInput()
 {
+    uint8_t i,j = 0;
+    char buffer[100];
+    uint8_t input = 0;
+    uint8_t expectedOp = 0;
 
+    strcpy(buffer, "3. TEST CASE: EXTENDED INPUT MODE from p1.0-p1.7\n");
+    uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+    for(i = 0; i <= 15; i++)
+    {
+        for(j = 0; j <= 15; j++)
+        {
+            input = j | (i << 4);
+
+            if((input & 0x0F) < 8)
+            {
+                expectedOp = 0xFF;
+            }
+            else
+            {
+                expectedOp = 1 << (input - 8);
+            }
+
+            testMspIoModes(EXTENDED_INP_MODE, input, expectedOp);
+        }
+    }
 }

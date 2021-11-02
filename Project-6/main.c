@@ -25,7 +25,11 @@ int main(void)
     uartConfigParam.uartModule = UART_0;
 
     uartInit(&uartConfigParam);
+
     testNormalMode();
+    testWrongPins();
+    testWrongPort();
+    testExtendedDataInput();
 
     while(1)
     {
