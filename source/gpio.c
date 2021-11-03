@@ -25,6 +25,27 @@ void gpioInit(uint32_t portBaseAdd, uint8_t pins,  dir_e direction)
     if(direction == INPUT)
     {
         GPIOPinTypeGPIOInput(portBaseAdd, pins);
+        switch(portBaseAdd)
+        {
+        case PORT_A:
+            GPIO_PORTA_PDR_R |= pins;
+            break;
+        case PORT_B:
+            GPIO_PORTB_PDR_R |= pins;
+            break;
+        case PORT_C:
+            GPIO_PORTC_PDR_R |= pins;
+            break;
+        case PORT_D:
+            GPIO_PORTD_PDR_R |= pins;
+            break;
+        case PORT_E:
+            GPIO_PORTE_PDR_R |= pins;
+            break;
+        case PORT_F:
+            GPIO_PORTF_PDR_R |= pins;
+            break;
+        }
     }
     else
     {
