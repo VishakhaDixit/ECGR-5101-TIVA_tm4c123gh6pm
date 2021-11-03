@@ -25,6 +25,7 @@ void gpioInit(uint32_t portBaseAdd, uint8_t pins,  dir_e direction)
     if(direction == INPUT)
     {
         GPIOPinTypeGPIOInput(portBaseAdd, pins);
+
         switch(portBaseAdd)
         {
         case PORT_A:

@@ -17,23 +17,14 @@
 #include <include/uart.h>
 #include <include/gpio.h>
 
-typedef enum testCaseSelect
-{
-    NORMAL_MODE,
-    EXTENDED_INP_MODE,
-    INP_WRONG_PINS,
-    INP_WRONG_PORT
-} testCaseSelect_e;
+void testNormalMode(uint8_t input);
 
-void testMspIoModes(testCaseSelect_e testCase, uint8_t input, uint8_t expectedOp);
+void testWrongPins(uint8_t input);
 
-void testNormalMode();
+void testWrongPort(uint8_t input);
 
-void testWrongPins();
+void testExtendedDataInput(uint8_t input);
 
-void testWrongPort();
-
-void testExtendedDataInput();
-
+void assertOutput(uint8_t input, uint8_t outputRecvd, uint8_t expectedOp);
 
 #endif /* UNITTEST_H_ */
