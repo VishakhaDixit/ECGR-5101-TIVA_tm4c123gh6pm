@@ -28,4 +28,8 @@ uint8_t gpioGet(uint32_t portBaseAdd, uint8_t pin);
 
 void gpioSet(uint32_t portBaseAdd, uint8_t pins, uint8_t val);
 
+void enableGpioInterrupt(uint32_t portBaseAdd, uint8_t pins, uint32_t intFlags);
+
+void GPIOIntHandler(void);
+
 #endif /* GPIO_H_ */

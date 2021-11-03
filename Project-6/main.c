@@ -12,21 +12,24 @@
 
 #include <include/unitTest.h>
 
+extern volatile bool switchPressed;
+
 int main(void)
 {
     int i, j = 0;
     uint8_t input = 0;
     char buffer[50];
-//    bool switchStatus = false;
 
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
                    SYSCTL_XTAL_16MHZ);
 
-    //Enable PortF for initialzing SW-1
+    //Enable PortF for initializing SW-1
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 
-    //Initialize SW-1
+    //Initialize SW-1, & enable interrupt
     gpioInit(PORT_F, PIN_4, INPUT);
+    GPIOPadConfigSet(PORT_F, PIN_4, GPIO_STRENGTH_4MA, GPIO_PIN_TYPE_STD_WPU);
+    enableGpioInterrupt(PORT_F, PIN_4, GPIO_INT_PIN_4);
 
     //Configure UART
     uart_config_args_t uartConfigParam;
@@ -41,8 +44,8 @@ int main(void)
 
     while(1)
     {
-//        if(switchStatus == true)
-//        {
+        if(switchPressed == true)
+        {
             //Run all test cases
             strcpy(buffer, "1. TEST CASE: NORMAL MODE.\n");
             uartTxBytes(UART0_BASE, buffer, strlen(buffer));
@@ -85,6 +88,8 @@ int main(void)
                     testExtendedDataInput(input);
                 }
             }
-//        }
+
+            switchPressed = false;
+        }
     }
 }

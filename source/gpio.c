@@ -12,6 +12,8 @@
 
 #include "include/gpio.h"
 
+volatile bool switchPressed = false;
+
 
 /**************************
  * @brief       This function initializes the given port based on the direction provided.
@@ -82,4 +84,32 @@ uint8_t gpioGet(uint32_t portBaseAdd, uint8_t pin)
 void gpioSet(uint32_t portBaseAdd, uint8_t pins, uint8_t val)
 {
     GPIOPinWrite(portBaseAdd, pins, val);
+}
+
+
+/**************************
+ * @brief       This function enables gpio interrupt for givrn pin
+ *
+ * @param [in]  portBaseAdd, pins, intFlags
+ *
+ * @return      NULL
+ **************************/
+void enableGpioInterrupt(uint32_t portBaseAdd, uint8_t pins, uint32_t intFlags)
+{
+    GPIOIntEnable(portBaseAdd, intFlags);
+    GPIOIntTypeSet(portBaseAdd, pins, GPIO_LOW_LEVEL);
+
+    IntPrioritySet(INT_GPIOF, 0);
+    IntRegister(INT_GPIOF, GPIOIntHandler);
+    IntEnable(INT_GPIOF);
+
+    IntMasterEnable();
+}
+
+
+//Interrupt service routine
+void GPIOIntHandler(void)
+{
+    GPIOIntClear(GPIO_PORTF_BASE, GPIO_INT_PIN_4);
+    switchPressed = true;
 }
