@@ -26,10 +26,10 @@ int main(void)
 
     uartInit(&uartConfigParam);
 
-    testNormalMode();
-    testWrongPins();
+//    testNormalMode();
+//    testWrongPins();
     testWrongPort();
-    testExtendedDataInput();
+//    testExtendedDataInput();
 
     while(1)
     {
