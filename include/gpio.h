@@ -2,7 +2,7 @@
  *
  * @file    gpio.h
  *
- * @brief   This file contains functions for initializing msp430 gpio.
+ * @brief   This file contains functions for initializing gpio.
  *
  * @date    Oct 22, 2021
  *

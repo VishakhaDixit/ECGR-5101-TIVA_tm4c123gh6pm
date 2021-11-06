@@ -99,7 +99,7 @@ void testNormalMode(uint8_t input)
     //Introduced delay to wait for msp430 to process the given input
     SysCtlDelay((SysCtlClockGet() * 1) / 3);
 
-    /**********************************Assert received data**********/
+    /**********************************Assert received data**************************/
 
     outputRecvd += gpioGet(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7));
     outputRecvd = ((outputRecvd & 0xE0) >> 5) | ((outputRecvd & 0x1C) << 1);
@@ -159,7 +159,7 @@ void testWrongPins(uint8_t input)
     //Introduced delay to wait for msp430 to process the given input
     SysCtlDelay((SysCtlClockGet() * 1) / 3);
 
-    /**********************************Assert received data**********/
+    /**********************************Assert received data*************************/
 
     outputRecvd += gpioGet(PORT_A, (PIN_2 | PIN_3 | PIN_4 | PIN_5 | PIN_6 | PIN_7));
     outputRecvd = ((outputRecvd & 0xE0) >> 5) | ((outputRecvd & 0x1C) << 1);
@@ -183,6 +183,7 @@ void testWrongPins(uint8_t input)
 void testWrongPort(uint8_t input)
 {
     uint8_t expectedOp;
+    char buffer[50];
 
     uint8_t portASetInp, portBSetInp, portESetInp;
     uint8_t outputRecvd = 0;
@@ -232,7 +233,13 @@ void testWrongPort(uint8_t input)
                   ((outputRecvd & 0x10) << 1) | (outputRecvd & 0xC0) );
     outputRecvd += (gpioGet(PORT_E, (PIN_4 | PIN_5)) & 0x18) >> 1;
 
-    assertOutput(input, outputRecvd, expectedOp);
+    if(outputRecvd > 0)
+    {
+        strcpy(buffer, "Configured Ports Wrong, Sending INPUT on PORT-2 & Receiving OUTPUT from PORT-1\n");
+        uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+        assertOutput(input, outputRecvd, expectedOp);
+        return;
+    }
 }
 
 
@@ -326,7 +333,7 @@ void testExtendedDataInput(uint8_t input)
 
 
 /**************************
- * @brief       This function verifies received output with expected output & displays result via uart
+ * @brief       This function verifies received output with expected data & displays result via uart
  *
  * @param [in]  input, outputRecvd, expectedOp
  *
@@ -366,4 +373,64 @@ void assertOutput(uint8_t input, uint8_t outputRecvd, uint8_t expectedOp)
         decToBin(expectedOp, outputData);
         uartTxBytes(UART0_BASE, outputData, 8);
     }
+}
+
+
+/**************************
+ * @brief       This function verifies that no output is received on wrong pins of p1.4-p1.7
+ *
+ * @param [in]  input
+ *
+ * @return      void
+ **************************/
+void testReadWrongPins(uint8_t input)
+{
+    uint8_t expectedOp;
+
+    uint8_t portBSetInp, portESetInp;
+    uint8_t outputRecvd = 0;
+
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+    /******************************Initialize Test******************************/
+
+    //Set input direction
+    gpioInit(PORT_B, (PIN_4 | PIN_6 | PIN_7), INPUT);
+    gpioInit(PORT_E, PIN_5, INPUT);
+
+    //Set output direction
+    gpioInit(PORT_B, (PIN_5 | PIN_0 | PIN_1), OUTPUT);
+    gpioInit(PORT_E, (PIN_4), OUTPUT);
+
+    //Set initial value to zero.
+    gpioSet(PORT_B, (PIN_5 | PIN_0 | PIN_1 | PIN_4 | PIN_6 | PIN_7), 0x00);
+    gpioSet(PORT_E, (PIN_4 | PIN_5), 0x00);
+
+    expectedOp = 0x00;
+
+    /********************************Execute Test**********************************/
+
+    portBSetInp = (input & 0x06) >> 1;
+    portBSetInp |= (input & 0x01) << 5;
+
+    portESetInp = (input & 0x08) << 1;
+
+    //Set the given input
+    gpioSet(PORT_B, (PIN_5 | PIN_0 | PIN_1), portBSetInp);
+    gpioSet(PORT_E, PIN_4, portESetInp);
+
+    //Introduced delay to wait for msp430 to process the given input
+    SysCtlDelay((SysCtlClockGet() * 1) / 3);
+
+    /**********************************Assert received data**************************/
+
+    outputRecvd += gpioGet(PORT_B, (PIN_4 | PIN_6 | PIN_7));
+    outputRecvd = ((outputRecvd & 0x10) >> 3) | ((outputRecvd & 0xC0) >> 4);
+    outputRecvd += gpioGet(PORT_E, (PIN_5)) >> 5;
+
+    outputRecvd = outputRecvd << 4;
+
+    assertOutput(input, outputRecvd, expectedOp);
 }

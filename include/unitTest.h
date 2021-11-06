@@ -21,6 +21,8 @@ void testNormalMode(uint8_t input);
 
 void testWrongPins(uint8_t input);
 
+void testReadWrongPins(uint8_t input);
+
 void testWrongPort(uint8_t input);
 
 void testExtendedDataInput(uint8_t input);

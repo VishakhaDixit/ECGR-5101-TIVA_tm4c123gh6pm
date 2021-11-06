@@ -1,9 +1,14 @@
-/*
- * common.h
+/**************************
  *
- *  Created on: Oct 22, 2021
- *      Author: visha
- */
+ * @file    unitTest.h
+ *
+ * @brief   This is a common file containing all the headers and enums required in the project.
+ *
+ * @date    Oct 22, 2021
+ *
+ * @author  Vishakha Dixit, Anuradha
+ *
+ **************************/
 
 #ifndef COMMON_H_
 #define COMMON_H_

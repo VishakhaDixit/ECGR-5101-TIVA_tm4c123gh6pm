@@ -46,7 +46,8 @@ int main(void)
     {
         if(switchPressed == true)
         {
-            //Run all test cases
+            //Run all test cases on switch press
+
             strcpy(buffer, "1. TEST CASE: NORMAL MODE.\n");
             uartTxBytes(UART0_BASE, buffer, strlen(buffer));
             for(input = 0; input < 16; input++)
@@ -54,7 +55,15 @@ int main(void)
                 testNormalMode(input);
             }
 
-            strcpy(buffer, "\n2. TEST CASE: INPUT(0-15) SENT ON WRONG PINS OF PORT1 p4-p7.\n");
+            strcpy(buffer, "\n2. TEST CASE: WRONG PORT INPUT MODE from p2.0-p2.7\n");
+            uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+            testWrongPort(4);
+
+            strcpy(buffer, "Execution Done\n");
+            uartTxBytes(UART0_BASE, buffer, strlen(buffer));
+
+            strcpy(buffer, "\n3. TEST CASE: INPUT(0-15) SENT ON WRONG PINS OF PORT1 p4-p7.\n");
             uartTxBytes(UART0_BASE, buffer, strlen(buffer));
 
             for(input = 0; input < 16; input++)
@@ -62,22 +71,15 @@ int main(void)
                 testWrongPins(input);
             }
 
-            strcpy(buffer, "\n3. TEST CASE: WRONG PORT INPUT MODE from p2.0-p2.7\n");
+            strcpy(buffer, "\n4. TEST CASE: INPUT(0-15) SENT ON P1.0-P1.3, OUTPUT READ ON WRONG PINS P1.4-P1.7\n");
             uartTxBytes(UART0_BASE, buffer, strlen(buffer));
 
-            for(i = 0; i <= 15; i++)
+            for(input = 0; input < 16; input++)
             {
-                for(j = 0; j <= 15; j++)
-                {
-                    input = j | (i << 4);
-                    testWrongPort(input);
-                }
+                testReadWrongPins(input);
             }
 
-            i = 0;
-            j = 0;
-
-            strcpy(buffer, "\n4. TEST CASE: EXTENDED INPUT MODE from p1.0-p1.7\n");
+            strcpy(buffer, "\n5. TEST CASE: EXTENDED INPUT MODE from p1.0-p1.7\n");
             uartTxBytes(UART0_BASE, buffer, strlen(buffer));
 
             for(i = 0; i <= 15; i++)
