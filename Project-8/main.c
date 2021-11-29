@@ -19,10 +19,12 @@
 #define Y_MAX 128
 #define Y_MIN 4
 
-#define DELX_MAX 5
-#define DELX_MIN -5
-#define DELY_MAX 5
-#define DELY_MIN -5
+#define INITX_MAX 124
+#define INITX_MIN 64
+
+#define DELX -2
+#define DELY_MAX  2
+#define DELY_MIN -2
 
 #define PADDLE_MIN 4
 #define PADDLE_MAX 110
@@ -43,8 +45,8 @@ void main(void)
     int16_t ballDelY = 0;
 
     int16_t paddleX, paddleY;
-    int16_t paddleWidth = 4;
-    int16_t paddleLen = 20;
+    int16_t paddleWidth = 2;
+    int16_t paddleLen = 15;
     int8_t paddleAcc;
 
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
@@ -95,24 +97,17 @@ void main(void)
             //fetch adc random value and use it as seed to generate random ball coordinates for a set range
             adcRanVal = ADC_Read(&adcRanValParam);
             srand(adcRanVal);
-            ballX = (rand() % (X_MAX - X_MIN + 1)) + X_MIN;
+            ballX = (rand() % (INITX_MAX - INITX_MIN + 1)) + INITX_MIN;
             ballY = (rand() % (Y_MAX - Y_MIN + 1)) + Y_MIN;
 
             //fetch adc random value to generate random differential coordinates to randomize ball's movement
             adcRanVal = ADC_Read(&adcRanValParam);
             srand(adcRanVal);
-            ballDelX = (rand() % (DELX_MAX - DELX_MIN + 1)) + DELX_MIN;
+            ballDelX = DELX;
             ballDelY = (rand() % (DELY_MAX - DELY_MIN + 1)) + DELY_MIN;
 
-            if(ballDelX == 0)
-            {
-                ballDelX += 1;
-            }
-
             if(ballDelY == 0)
-            {
-                ballDelY += 1;
-            }
+                ballDelY = 1;
 
             //Set intial paddle coordinates
             paddleX = 4;
