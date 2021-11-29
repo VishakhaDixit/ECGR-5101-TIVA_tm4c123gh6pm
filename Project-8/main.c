@@ -19,10 +19,10 @@
 #define Y_MAX 128
 #define Y_MIN 4
 
-#define DELX_MAX 8
-#define DELX_MIN -8
-#define DELY_MAX 8
-#define DELY_MIN -8
+#define DELX_MAX 5
+#define DELX_MIN -5
+#define DELY_MAX 5
+#define DELY_MIN -5
 
 #define PADDLE_MIN 4
 #define PADDLE_MAX 110
@@ -81,6 +81,13 @@ void main(void)
     // Initialize ADC
     ADC_Init(&adcConfigParam);
 
+    //Initialize LCD
+    lcdInit();
+
+    ST7735_FillScreen(0x0000);  // black screen
+    SysCtlDelay(500000);
+    ST7735_FillScreen(0XFFFF);  //white screen
+
     while(1)
     {
         if(isInit == true)
@@ -110,13 +117,6 @@ void main(void)
             //Set intial paddle coordinates
             paddleX = 4;
             paddleY = 54;
-
-            //Initialize LCD
-            lcdInit();
-
-            ST7735_FillScreen(0x0000);  // black screen
-            SysCtlDelay(500000);
-            ST7735_FillScreen(0XFFFF);  //white screen
 
             //Display initial paddle & ball position
             displayBall(ballX, ballY, BLACK);
@@ -186,11 +186,14 @@ void main(void)
 
                 ST7735_DrawCharS(59, 4, 'E', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
                 ST7735_DrawCharS(70, 4, 'N', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
-                ST7735_DrawCharS(80, 4, 'D', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+                ST7735_DrawCharS(84, 4, 'D', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
                 SysCtlDelay(500000);
                 ST7735_DrawCharS(59, 4, 'E', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
                 ST7735_DrawCharS(70, 4, 'N', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
-                ST7735_DrawCharS(80, 4, 'D', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+                ST7735_DrawCharS(84, 4, 'D', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+
+                displayBall(ballX, ballY, WHITE);
+                displayPaddle(paddleX, paddleY, paddleWidth, paddleLen, ST7735_WHITE);
 
                 isInit = true;
 
