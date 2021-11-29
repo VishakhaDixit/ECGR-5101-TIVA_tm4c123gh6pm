@@ -154,7 +154,7 @@ void main(void)
         {
             if((ballY >= paddleY) && (ballY <= paddleY + paddleLen))
             {
-                ballDelX *= -1;
+                ballDelX *= (-1);
                 ballX = paddleX + paddleWidth;
             }
         }
