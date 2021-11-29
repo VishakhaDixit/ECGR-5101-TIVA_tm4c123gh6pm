@@ -120,7 +120,7 @@ void main(void)
         ballX += ballDelX;
         ballY += ballDelY;
 
-        if((ballX >= X_MAX)
+        if(ballX >= X_MAX)
         {
             ballDelX *= -1;
             ballX = X_MAX;
@@ -128,7 +128,7 @@ void main(void)
 
         if( (ballX >= paddleX) || (ballX <= (paddleX + paddleWidth)) )
         {
-            if(ballY >= paddleY) || (ballY <= paddleY + paddleLen)
+            if((ballY >= paddleY) || (ballY <= paddleY + paddleLen))
             {
                 ballDelX *= -1;
                 ballX = paddleX + paddleWidth;
