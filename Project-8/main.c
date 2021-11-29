@@ -68,33 +68,6 @@ void main(void)
     // Initialize ADC
     ADC_Init(&adcRanValParam);
 
-    //fetch adc random value and use it as seed to generate random ball coordinates for a set range
-    adcRanVal = ADC_Read(&adcRanValParam);
-    srand(adcRanVal);
-    ballX = (rand() % (X_MAX - X_MIN + 1)) + X_MIN;
-    ballY = (rand() % (Y_MAX - Y_MIN + 1)) + Y_MIN;
-
-    //fetch adc random value to generate random differential coordinates to randomize ball's movement
-    adcRanVal = ADC_Read(&adcRanValParam);
-    srand(adcRanVal);
-    ballDelX = (rand() % (DELX_MAX - DELX_MIN + 1)) + DELX_MIN;
-    ballDelY = (rand() % (DELY_MAX - DELY_MIN + 1)) + DELY_MIN;
-
-    //Set intial paddle coordinates
-    paddleX = 4;
-    paddleY = 54;
-
-    //Initialize LCD
-    lcdInit();
-
-    ST7735_FillScreen(0x0000);  // black screen
-    SysCtlDelay(500000);
-    ST7735_FillScreen(0XFFFF);  //white screen
-
-    //Display initial paddle & ball position
-    displayBall(ballX, ballY, BLACK);
-    displayPaddle(paddleX, paddleY, paddleWidth, paddleLen, ST7735_BLACK);
-
     //Initialize Port D pin 3 as input to fetch adc data from joystick
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
 
@@ -114,6 +87,38 @@ void main(void)
 
     while(1)
     {
+        if(isInit == true)
+        {
+            //fetch adc random value and use it as seed to generate random ball coordinates for a set range
+            adcRanVal = ADC_Read(&adcRanValParam);
+            srand(adcRanVal);
+            ballX = (rand() % (X_MAX - X_MIN + 1)) + X_MIN;
+            ballY = (rand() % (Y_MAX - Y_MIN + 1)) + Y_MIN;
+
+            //fetch adc random value to generate random differential coordinates to randomize ball's movement
+            adcRanVal = ADC_Read(&adcRanValParam);
+            srand(adcRanVal);
+            ballDelX = (rand() % (DELX_MAX - DELX_MIN + 1)) + DELX_MIN;
+            ballDelY = (rand() % (DELY_MAX - DELY_MIN + 1)) + DELY_MIN;
+
+            //Set intial paddle coordinates
+            paddleX = 4;
+            paddleY = 54;
+
+            //Initialize LCD
+            lcdInit();
+
+            ST7735_FillScreen(0x0000);  // black screen
+            SysCtlDelay(500000);
+            ST7735_FillScreen(0XFFFF);  //white screen
+
+            //Display initial paddle & ball position
+            displayBall(ballX, ballY, BLACK);
+            displayPaddle(paddleX, paddleY, paddleWidth, paddleLen, ST7735_BLACK);
+
+            isInit = false;
+        }
+
         displayBall(ballX, ballY, WHITE);
         displayPaddle(paddleX, paddleY, paddleWidth, paddleLen, ST7735_WHITE);
 
@@ -126,9 +131,9 @@ void main(void)
             ballX = X_MAX;
         }
 
-        if( (ballX >= paddleX) || (ballX <= (paddleX + paddleWidth)) )
+        if( (ballX >= paddleX) && (ballX <= (paddleX + paddleWidth)) )
         {
-            if((ballY >= paddleY) || (ballY <= paddleY + paddleLen))
+            if((ballY >= paddleY) && (ballY <= paddleY + paddleLen))
             {
                 ballDelX *= -1;
                 ballX = paddleX + paddleWidth;
@@ -144,6 +149,21 @@ void main(void)
 
             if(ballY >= Y_MAX)
                 ballY = Y_MAX;
+        }
+
+        if(ballX < paddleX)
+        {
+            if( !((ballY >= paddleY) && (ballY <= paddleY + paddleLen)) )
+            {
+                ballX = paddleX;
+
+                displayBall(ballX, ballY, BLACK);
+                displayPaddle(paddleX, paddleY, paddleWidth, paddleLen, ST7735_BLACK);
+
+                isInit = true;
+
+                continue;
+            }
         }
 
         adcResult = ADC_Read(&adcConfigParam);
