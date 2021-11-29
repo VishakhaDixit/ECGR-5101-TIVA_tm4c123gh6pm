@@ -31,10 +31,6 @@ int8_t getAccVal(uint8_t sampleVal);
 
 void main(void)
 {
-    char ticks[3] = {3, 2, 1};
-    char *startStr = "Start";
-    char *endStr = "End";
-
     bool isInit = true;
 
     uint32_t adcRanVal = 0;
@@ -116,6 +112,24 @@ void main(void)
             displayBall(ballX, ballY, BLACK);
             displayPaddle(paddleX, paddleY, paddleWidth, paddleLen, ST7735_BLACK);
 
+            ST7735_DrawCharS(59, 4, '3', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+            SysCtlDelay(500000);
+            ST7735_DrawCharS(59, 4, '3', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+            ST7735_DrawCharS(59, 4, '2', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+            SysCtlDelay(500000);
+            ST7735_DrawCharS(59, 4, '2', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+            ST7735_DrawCharS(59, 4, '1', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+            SysCtlDelay(500000);
+            ST7735_DrawCharS(59, 4, '1', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+            SysCtlDelay(500000);
+            ST7735_DrawCharS(59, 4, 'G', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+            ST7735_DrawCharS(70, 4, 'O', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+            ST7735_DrawCharS(80, 4, '!', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+            SysCtlDelay(500000);
+            ST7735_DrawCharS(59, 4, 'G', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+            ST7735_DrawCharS(70, 4, 'O', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+            ST7735_DrawCharS(80, 4, '!', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+
             isInit = false;
         }
 
@@ -159,6 +173,14 @@ void main(void)
 
                 displayBall(ballX, ballY, BLACK);
                 displayPaddle(paddleX, paddleY, paddleWidth, paddleLen, ST7735_BLACK);
+
+                ST7735_DrawCharS(59, 4, 'E', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+                ST7735_DrawCharS(70, 4, 'N', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+                ST7735_DrawCharS(80, 4, 'D', ST7735_Color565 (0, 0, 139), ST7735_Color565 (255, 255, 255), 2);
+                SysCtlDelay(500000);
+                ST7735_DrawCharS(59, 4, 'E', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+                ST7735_DrawCharS(70, 4, 'N', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
+                ST7735_DrawCharS(80, 4, 'D', ST7735_Color565 (255, 255, 255), ST7735_Color565 (255, 255, 255), 2);
 
                 isInit = true;
 
