@@ -97,6 +97,16 @@ void main(void)
             ballDelX = (rand() % (DELX_MAX - DELX_MIN + 1)) + DELX_MIN;
             ballDelY = (rand() % (DELY_MAX - DELY_MIN + 1)) + DELY_MIN;
 
+            if(ballDelX == 0)
+            {
+                ballDelX += 1;
+            }
+
+            if(ballDelY == 0)
+            {
+                ballDelY += 1;
+            }
+
             //Set intial paddle coordinates
             paddleX = 4;
             paddleY = 54;
