@@ -6,7 +6,7 @@
  *
  * @date    Oct 21, 2021
  *
- * @author  Vishakha Dixit, Anuradha
+ * @author  Vishakha Dixit
  *
  **************************/
 
